@@ -35,15 +35,19 @@ firebase.auth().onAuthStateChanged(async function(user) {
 
     // 🔥 Step 4 begins here
     // get a reference to the "submit message" button
+    let submitButton = document.querySelector(`#submit-message`)
 
     // handle the "submit message" button being clicked
+    submitButton.addEventListener(`click`, async function(event) { 
 
       // ignore the default form submit behavior
+      event.preventDefault()
 
       // get a reference to the "message" input box
-
+      let messageInput = document.querySelector('#message')
       // get the message that was typed in the "message" input box
-
+      let message = messageInput.value
+    
       // the lambda function to create a message is already written and available at:
       // https://kiei451.com/.netlify/functions/create_message?userName=_______&body=________
       // it accepts two querystring parameters: 
@@ -52,27 +56,30 @@ firebase.auth().onAuthStateChanged(async function(user) {
       // if successfully called, the return value of the lambda is an Array of all messages
 
       // build the URL of the lambda function
-
+    let url = `https://kiei451.com/.netlify/functions/create_message?userName=${user}&body=${message}`
       // Fetch the url, wait for a response, store the response in memory
+      let response = await fetch(url)
 
       // Ask for the json-formatted data from the response, wait for the data, store it in memory
-
+      let json = await response.json()
+console.log(json)
       // Grab a reference to the element with class name "messages" in memory
+      let messagesDiv = document.querySelector(`.messages`)
 
       // Clear anything already in the "messages" element
-
+        messagesDiv.innerHTML = ``
       // Loop through the JSON data, for each Object representing a message:
-
+      for (let i=0; i<json.length; i++) {
         // Store each object ("message") in memory
+         message = json[i]
 
         // Create some markup using the post data, insert into the "messages" element
-        // Sample HTML to use:
-        // <div class="md:mx-0 mx-4 mt-8 w-1/2 mx-auto">
-        //   <span class="font-bold">Brian says... </span>
-        //   I love tacos!
-        // </div>
+        messagesDiv.insertAdjacentHTML(`beforeend`, `<div class="md:mx-0 mx-4 mt-8 w-1/2 mx-auto"> <span class="font-bold">${message.userName} says... </span> ${message.body}</div>`)
 
       // clear out the messages input box
+       messageInput=``
+      }
+    })
   } else {
     // user is not logged-in, so show login
     // Initializes FirebaseUI Auth
